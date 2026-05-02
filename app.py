@@ -68,28 +68,25 @@ def get_recommendations(df, user_id, model, n=5):
     return pd.DataFrame(rec_list)
 
 # --- INTERFAZ DE USUARIO ---
-st.title('🎵 AI Music Recommender | Proyecto de Deep Learning')
+st.title('Sistema de Recommendaciones | Proyecto de Deep Learning')
 st.caption('Desarrollado por: **Jaime Claure**')
 
 st.markdown("""
-Explora recomendaciones personalizadas impulsadas por un motor de Inteligencia Artificial. Este proyecto de investigación analiza el ecosistema musical utilizando tres enfoques avanzados:
-* **Filtrado Colaborativo (Co-Clustering):** Agrupa simultáneamente a usuarios y canciones para encontrar patrones ocultos y predecir afinidades.
-* **Procesamiento de Lenguaje Natural (TF-IDF):** Analiza el contexto semántico (título, artista, álbum) para sugerencias basadas en contenido.
-* **Redes Neuronales en Grafos (GNN):** Mapea conexiones de escucha, utilizando *Random Walks* y arquitecturas *Skip-gram* en PyTorch para extraer *embeddings* profundos de cada pista.
+Este proyecto de Deep Learning realiza un analiza bajo tres enfoques:
+* **Filtrado Colaborativo:** Agrupa a usuarios y canciones para encontrar patrones y predecir afinidades.
+* **Procesamiento de Lenguaje Natural:** Analiza el contexto semantico basadas en contenido.
+* **Redes Neuronales en Grafos:** Mapea conexiones de escucha para extraer embeddings de cada cancion.
 
-*(Actualmente ejecutando en producción: Motor de Co-Clustering Optimizado).*
 """)
 st.divider()
 
-with st.expander("🧠 Conoce la Ingeniería del Proyecto (Arquitectura de Datos)"):
-    st.markdown("""
-    **¿Cómo funciona el motor híbrido bajo el capó?**
+with st.expander("Como funciona la arquitectura detras del proyecto?"):
+    st.markdown("""      
+    Este es el proyecto 3 del modulo de Deep Learning diseñado para abordar los desafíos de los sistemas de recomendación:
     
-    Este proyecto fue diseñado para abordar los desafíos clásicos de los sistemas de recomendación en producción, implementando tres estrategias de Deep Learning:
-    
-    1. **Filtrado Colaborativo (Co-Clustering):** *El motor principal.* Analiza patrones de comportamiento agrupando simultáneamente a usuarios y canciones. Es excelente para predecir ratings cuando hay abundante historial de interacciones.
-    2. **Redes Neuronales en Grafos (GNN - Node2Vec):** *Descubrimiento profundo.* Mapea el ecosistema musical como un grafo. Utilizando Random Walks y arquitecturas Skip-gram, genera 'embeddings' que capturan relaciones complejas y no lineales entre pistas.
-    3. **Content-Based (NLP + TF-IDF):** *La solución al 'Cold Start'.* Utiliza Procesamiento de Lenguaje Natural y Similitud del Coseno para analizar el contexto semántico de los metadatos. Es vital en producción para recomendar pistas recién lanzadas o atender a usuarios nuevos sin historial previo.
+    "1.- Filtrado colaborativo que agrupa simultaneamente usuarios y canciones en clusters usando patrones de interaccion y predecir sus afinidades\n\n"
+    "2.- Utilizando procesamiento del lenguaje natural para medir la similitud del coseno y comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n"
+    "3.- Redes neuronales con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical"
     """)
 
 try:
@@ -99,31 +96,31 @@ try:
     
     col1, col2 = st.columns([1, 2])
     with col1:
-        st.subheader("👤 Selecciona un Usuario")
+        st.subheader("Selecciona un usuario")
         user_id_input = st.selectbox('Usuarios válidos en la base de datos:', valid_users)
         
-        if st.button('🎲 Elegir usuario al azar'):
+        if st.button('Elige usuario al azar'):
             user_id_input = random.choice(valid_users)
             st.rerun()
 
     # Actualizado el argumento deprecado a width='stretch'
-    if st.button('🚀 Analizar Perfil y Recomendar', width='stretch'):
+    if st.button('Analizar perfil y recomendar', width='stretch'):
         st.divider()
         
         hist_col, rec_col = st.columns(2)
         
         with hist_col:
-            st.subheader("📻 Su Historial de Escuchas")
-            st.caption("Las canciones que este usuario más ha reproducido:")
+            st.subheader("Historial de escucha")
+            st.caption("Las canciones mas reproducidas por este usuario")
             history_df = get_user_history(df, user_id_input)
             history_df = history_df.rename(columns={'title': 'Canción', 'artist_name': 'Artista', 'play_count': 'Reproducciones'})
             # Actualizado el argumento deprecado a width='stretch'
             st.dataframe(history_df, width='stretch', hide_index=True)
             
         with rec_col:
-            st.subheader("✨ Recomendaciones para Ti")
-            st.caption("Nuestras sugerencias basadas en gustos similares:")
-            with st.spinner('Conectando con la IA y obteniendo portadas...'):
+            st.subheader("Recomendaciones para vos")
+            st.caption("Recomendaciones basadas en gustos similares:")
+            with st.spinner('Haciendo la magia..'):
                 rec_df = get_recommendations(df, user_id_input, model)
                 
                 # Desplegar tarjetas visuales con carátulas de Apple Music
