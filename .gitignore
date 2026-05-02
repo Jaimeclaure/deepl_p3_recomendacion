@@ -1,0 +1,4 @@
+count_data.csv
+song_data.csv
+*.ipynb
+__pycache__/
