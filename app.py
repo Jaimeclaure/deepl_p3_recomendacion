@@ -21,14 +21,14 @@ except Exception as e:
 
 # Función para buscar la portada del álbum en Spotify
 def get_album_cover(song_title, artist_name):
-fallback_url = "https://dummyimage.com/150x150/282828/1db954.png&text=No+Cover"
+    # Imagen genérica confiable (sin restricciones de navegador) en caso de error
+    fallback_url = "https://dummyimage.com/150x150/282828/1db954.png&text=No+Cover"
     
     if sp is None:
         return fallback_url
     
     try:
         # --- LIMPIEZA DE DATOS (Data Cleaning) ---
-        # Borra todo lo que esté entre paréntesis o corchetes (ej. "(LP Version)", "[Radio Edit]")
         clean_title = re.sub(r'\(.*?\)|\[.*?\]', '', song_title).strip()
         clean_artist = re.sub(r'\(.*?\)|\[.*?\]', '', artist_name).strip()
         
@@ -36,11 +36,14 @@ fallback_url = "https://dummyimage.com/150x150/282828/1db954.png&text=No+Cover"
         query = f"{clean_title} {clean_artist}"
         results = sp.search(q=query, type='track', limit=1)
         
+        # Verificamos que haya resultados y que el álbum tenga al menos una imagen
         if results['tracks']['items'] and len(results['tracks']['items'][0]['album']['images']) > 0:
+            # Tomamos siempre la primera imagen [0] para asegurar que exista
             return results['tracks']['items'][0]['album']['images'][0]['url']
         else:
             return fallback_url
     except Exception as e:
+        # Imprime el error internamente en la consola por si necesitas depurar
         print(f"Error en Spotify: {e}")
         return fallback_url
 
@@ -91,28 +94,28 @@ try:
     
     col1, col2 = st.columns([1, 2])
     with col1:
-        st.subheader("Selecciona un Usuario")
+        st.subheader("👤 Selecciona un Usuario")
         user_id_input = st.selectbox('Usuarios válidos en la base de datos:', valid_users)
         
-        if st.button('Elegir usuario al azar'):
+        if st.button('🎲 Elegir usuario al azar'):
             user_id_input = random.choice(valid_users)
             st.rerun()
 
-    if st.button('Analizar Perfil y Recomendar', use_container_width=True):
+    if st.button('🚀 Analizar Perfil y Recomendar', use_container_width=True):
         st.divider()
         
         hist_col, rec_col = st.columns(2)
         
         with hist_col:
-            st.subheader("Su historial de musica")
-            st.caption("Canciones mas reproducidas por el usuario:")
+            st.subheader("📻 Su Historial de Escuchas")
+            st.caption("Las canciones que este usuario más ha reproducido:")
             history_df = get_user_history(df, user_id_input)
             history_df = history_df.rename(columns={'title': 'Canción', 'artist_name': 'Artista', 'play_count': 'Reproducciones'})
             st.dataframe(history_df, use_container_width=True, hide_index=True)
             
         with rec_col:
-            st.subheader("Recomendaciones para vos")
-            st.caption("Recomendacion basada en gustos similares:")
+            st.subheader("✨ Recomendaciones para Ti")
+            st.caption("Nuestras sugerencias basadas en gustos similares:")
             with st.spinner('Conectando con la IA y Spotify API...'):
                 rec_df = get_recommendations(df, user_id_input, model)
                 
@@ -122,7 +125,7 @@ try:
                     artista = row['Artista']
                     score = row['Match Score']
                     
-                    # Llamada a Spotify
+                    # Llamada a Spotify con la limpieza de datos
                     portada_url = get_album_cover(cancion, artista)
                     
                     # Maquetación de la tarjeta
