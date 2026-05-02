@@ -68,8 +68,8 @@ def get_recommendations(df, user_id, model, n=5):
     return pd.DataFrame(rec_list)
 
 # --- INTERFAZ DE USUARIO ---
-st.title('Sistema de Recommendaciones | Proyecto de Deep Learning')
-st.caption('Desarrollado por: **Jaime Claure**')
+st.title('Sistema de Recomendaciones | Deep Learning')
+st.caption('Proyecto desarrollado por: **Jaime Claure**')
 
 st.markdown("""
 Este proyecto de Deep Learning realiza un analiza bajo tres enfoques:
