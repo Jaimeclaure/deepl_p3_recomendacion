@@ -6,3 +6,4 @@ scikit-learn
 joblib
 scikit-surprise
 streamlit
+spotipy
