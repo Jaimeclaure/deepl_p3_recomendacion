@@ -41,8 +41,14 @@ def get_recommendations(df, user_id, model, n=5):
     return pd.DataFrame(rec_list)
 
 # --- INTERFAZ DE USUARIO ---
-st.title('Proyecto de Deep Learning / Jaime Claure / Sistema de Recomendación de Música')
-st.markdown('Explora recomendaciones personalizadas impulsadas por un motor de Inteligencia Artificial (Co-Clustering).')
+st.title('Sistema de Recomendación de Música - Proyecto de Deep Learning')
+st.markdown(
+    "Desarrollado por Jaime Claure\n\n"
+    "Se emplea tres enfoques:\n\n"
+    "(1) Filtrado colaborativo con co-clustering para agrupar usuarios y canciones y predecir sus afinidades\n\n"
+    "(2) Usar TF‑IDF y medir la similitud del coseno para comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n"
+    "(3) GNN con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical"
+)
 st.divider()
 
 try:
