@@ -2,49 +2,39 @@ import streamlit as st
 import pandas as pd
 import joblib
 import random
-import spotipy
 import re
-from spotipy.oauth2 import SpotifyClientCredentials
+import requests
+import urllib.parse
 
 # 1. Configuración de la página
 st.set_page_config(page_title='Proyecto de Deep Learning / Jaime Claure', page_icon='🎵', layout='wide')
 
-# --- CONFIGURACIÓN SEGURA DE SPOTIFY API ---
-# Streamlit leerá las credenciales de manera invisible desde su bóveda de "Secrets"
-try:
-    CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"]
-    CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"]
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET))
-except Exception as e:
-    st.warning("Aviso: Las credenciales de Spotify no están configuradas en los Secrets de Streamlit. Las portadas no cargarán.")
-    sp = None
-
-# Función para buscar la portada del álbum en Spotify
+# --- CONFIGURACIÓN DE ITUNES API (Alternativa libre a Spotify) ---
 def get_album_cover(song_title, artist_name):
-    # Imagen genérica confiable (sin restricciones de navegador) en caso de error
+    # Imagen genérica confiable en caso de error
     fallback_url = "https://dummyimage.com/150x150/282828/1db954.png&text=No+Cover"
     
-    if sp is None:
-        return fallback_url
-    
     try:
-        # --- LIMPIEZA DE DATOS (Data Cleaning) ---
+        # Limpieza de datos (Borramos paréntesis y corchetes)
         clean_title = re.sub(r'\(.*?\)|\[.*?\]', '', song_title).strip()
         clean_artist = re.sub(r'\(.*?\)|\[.*?\]', '', artist_name).strip()
         
-        # Búsqueda usando los textos limpios
-        query = f"{clean_title} {clean_artist}"
-        results = sp.search(q=query, type='track', limit=1)
+        # Codificamos el texto para la URL
+        query = urllib.parse.quote(f"{clean_title} {clean_artist}")
         
-        # Verificamos que haya resultados y que el álbum tenga al menos una imagen
-        if results['tracks']['items'] and len(results['tracks']['items'][0]['album']['images']) > 0:
-            # Tomamos siempre la primera imagen [0] para asegurar que exista
-            return results['tracks']['items'][0]['album']['images'][0]['url']
+        # Llamada a la API pública de iTunes
+        url = f"https://itunes.apple.com/search?term={query}&entity=song&limit=1"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        
+        # Si iTunes encuentra la canción, extraemos la URL de la portada
+        if data['resultCount'] > 0:
+            # Obtenemos la imagen (por defecto 100x100px)
+            return data['results'][0]['artworkUrl100']
         else:
             return fallback_url
     except Exception as e:
-        # Imprime el error internamente en la consola por si necesitas depurar
-        print(f"Error en Spotify: {e}")
+        print(f"Error en iTunes API: {e}")
         return fallback_url
 
 # --- FUNCIONES DE DATOS Y MODELO ---
@@ -78,14 +68,29 @@ def get_recommendations(df, user_id, model, n=5):
     return pd.DataFrame(rec_list)
 
 # --- INTERFAZ DE USUARIO ---
-st.title('Sistema de Recomendación de Música - Proyecto de Deep Learning')
-st.markdown(
-    "Para el proyecto desarrollado por Jaime Claure, se emplea tres enfoques:\n\n"
-    "1.- Filtrado colaborativo que agrupa simultaneamente usuarios y canciones en clusters usando patrones de interaccion y predecir sus afinidades\n\n"
-    "2.- Utilizando procesamiento del lenguaje natural para medir la similitud del coseno y comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n"
-    "3.- Redes neuronales con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical"
-)
+st.title('🎵 AI Music Recommender | Proyecto de Deep Learning')
+st.caption('Desarrollado por: **Jaime Claure**')
+
+st.markdown("""
+Explora recomendaciones personalizadas impulsadas por un motor de Inteligencia Artificial. Este proyecto de investigación analiza el ecosistema musical utilizando tres enfoques avanzados:
+* **Filtrado Colaborativo (Co-Clustering):** Agrupa simultáneamente a usuarios y canciones para encontrar patrones ocultos y predecir afinidades.
+* **Procesamiento de Lenguaje Natural (TF-IDF):** Analiza el contexto semántico (título, artista, álbum) para sugerencias basadas en contenido.
+* **Redes Neuronales en Grafos (GNN):** Mapea conexiones de escucha, utilizando *Random Walks* y arquitecturas *Skip-gram* en PyTorch para extraer *embeddings* profundos de cada pista.
+
+*(Actualmente ejecutando en producción: Motor de Co-Clustering Optimizado).*
+""")
 st.divider()
+
+with st.expander("🧠 Conoce la Ingeniería del Proyecto (Arquitectura de Datos)"):
+    st.markdown("""
+    **¿Cómo funciona el motor híbrido bajo el capó?**
+    
+    Este proyecto fue diseñado para abordar los desafíos clásicos de los sistemas de recomendación en producción, implementando tres estrategias de Deep Learning:
+    
+    1. **Filtrado Colaborativo (Co-Clustering):** *El motor principal.* Analiza patrones de comportamiento agrupando simultáneamente a usuarios y canciones. Es excelente para predecir ratings cuando hay abundante historial de interacciones.
+    2. **Redes Neuronales en Grafos (GNN - Node2Vec):** *Descubrimiento profundo.* Mapea el ecosistema musical como un grafo. Utilizando Random Walks y arquitecturas Skip-gram, genera 'embeddings' que capturan relaciones complejas y no lineales entre pistas.
+    3. **Content-Based (NLP + TF-IDF):** *La solución al 'Cold Start'.* Utiliza Procesamiento de Lenguaje Natural y Similitud del Coseno para analizar el contexto semántico de los metadatos. Es vital en producción para recomendar pistas recién lanzadas o atender a usuarios nuevos sin historial previo.
+    """)
 
 try:
     df, model = load_data()
@@ -101,7 +106,8 @@ try:
             user_id_input = random.choice(valid_users)
             st.rerun()
 
-    if st.button('🚀 Analizar Perfil y Recomendar', use_container_width=True):
+    # Actualizado el argumento deprecado a width='stretch'
+    if st.button('🚀 Analizar Perfil y Recomendar', width='stretch'):
         st.divider()
         
         hist_col, rec_col = st.columns(2)
@@ -111,21 +117,22 @@ try:
             st.caption("Las canciones que este usuario más ha reproducido:")
             history_df = get_user_history(df, user_id_input)
             history_df = history_df.rename(columns={'title': 'Canción', 'artist_name': 'Artista', 'play_count': 'Reproducciones'})
-            st.dataframe(history_df, use_container_width=True, hide_index=True)
+            # Actualizado el argumento deprecado a width='stretch'
+            st.dataframe(history_df, width='stretch', hide_index=True)
             
         with rec_col:
             st.subheader("✨ Recomendaciones para Ti")
             st.caption("Nuestras sugerencias basadas en gustos similares:")
-            with st.spinner('Conectando con la IA y Spotify API...'):
+            with st.spinner('Conectando con la IA y obteniendo portadas...'):
                 rec_df = get_recommendations(df, user_id_input, model)
                 
-                # Desplegar tarjetas visuales con carátulas de Spotify
+                # Desplegar tarjetas visuales con carátulas de Apple Music
                 for index, row in rec_df.iterrows():
                     cancion = row['Canción']
                     artista = row['Artista']
                     score = row['Match Score']
                     
-                    # Llamada a Spotify con la limpieza de datos
+                    # Llamada a iTunes API
                     portada_url = get_album_cover(cancion, artista)
                     
                     # Maquetación de la tarjeta
@@ -136,7 +143,7 @@ try:
                         st.markdown(f"**{cancion}**")
                         st.write(f"🎤 {artista} | {score}")
                     
-                    st.divider() # Separador visual
+                    st.divider()
 
 except Exception as e:
     st.error(f'Error al cargar la aplicación: {e}')
