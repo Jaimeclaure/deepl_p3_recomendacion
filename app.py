@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import random
 import spotipy
+import re
 from spotipy.oauth2 import SpotifyClientCredentials
 
 # 1. Configuración de la página
@@ -20,22 +21,23 @@ except Exception as e:
 
 # Función para buscar la portada del álbum en Spotify
 def get_album_cover(song_title, artist_name):
-# Imagen genérica tipo "carátula" que nunca será bloqueada por los navegadores
-    fallback_url = "https://dummyimage.com/150x150/282828/1db954.png&text=No+Cover"
+fallback_url = "https://dummyimage.com/150x150/282828/1db954.png&text=No+Cover"
     
     if sp is None:
         return fallback_url
     
     try:
-        # Búsqueda FLEXIBLE: sin etiquetas estrictas. Es mucho más precisa con el dataset.
-        query = f"{song_title} {artist_name}"
+        # --- LIMPIEZA DE DATOS (Data Cleaning) ---
+        # Borra todo lo que esté entre paréntesis o corchetes (ej. "(LP Version)", "[Radio Edit]")
+        clean_title = re.sub(r'\(.*?\)|\[.*?\]', '', song_title).strip()
+        clean_artist = re.sub(r'\(.*?\)|\[.*?\]', '', artist_name).strip()
+        
+        # Búsqueda usando los textos limpios
+        query = f"{clean_title} {clean_artist}"
         results = sp.search(q=query, type='track', limit=1)
         
-        # Verificamos que haya resultados y que el álbum tenga al menos una imagen
         if results['tracks']['items'] and len(results['tracks']['items'][0]['album']['images']) > 0:
-            # Tomamos la imagen principal [0] para asegurar que exista
-            image_url = results['tracks']['items'][0]['album']['images'][0]['url']
-            return image_url
+            return results['tracks']['items'][0]['album']['images'][0]['url']
         else:
             return fallback_url
     except Exception as e:
