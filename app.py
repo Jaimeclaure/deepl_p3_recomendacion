@@ -76,24 +76,20 @@ Este proyecto de Deep Learning realiza un analiza bajo tres enfoques:
 * **Filtrado Colaborativo:** Agrupa a usuarios y canciones para encontrar patrones y predecir afinidades.
 * **Procesamiento de Lenguaje Natural:** Analiza el contexto semantico basadas en contenido.
 * **Redes Neuronales en Grafos:** Mapea conexiones de escucha para extraer embeddings de cada cancion.
-
 """)
-st.divider()
 
 with st.expander("Como funciona la arquitectura detras del proyecto?"):
     st.markdown("""      
-    Este es el proyecto 3 del modulo de Deep Learning diseñado para abordar los desafíos de los sistemas de recomendación:
+    Proyecto de Deep Learning diseñado para abordar los desafíos de los sistemas de recomendacion:
     
-    "1.- Filtrado colaborativo que agrupa simultaneamente usuarios y canciones en clusters usando patrones de interaccion y predecir sus afinidades\n\n"
-    "2.- Utilizando procesamiento del lenguaje natural para medir la similitud del coseno y comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n"
-    "3.- Redes neuronales con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical"
+    1. Filtrado colaborativo que agrupa simultaneamente usuarios y canciones en clusters usando patrones de interaccion y predecir sus afinidades\n\n
+    2. Utilizando procesamiento del lenguaje natural para medir la similitud del coseno y comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n
+    3. Redes neuronales con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical
     """)
 
 try:
-    df, model = load_data()
-    
-    valid_users = sorted(df['user_id'].unique())
-    
+    df, model = load_data()    
+    valid_users = sorted(df['user_id'].unique())    
     col1, col2 = st.columns([1, 2])
     with col1:
         st.subheader("Selecciona un usuario")
@@ -105,13 +101,10 @@ try:
 
     # Actualizado el argumento deprecado a width='stretch'
     if st.button('Analizar perfil y recomendar', width='stretch'):
-        st.divider()
-        
         hist_col, rec_col = st.columns(2)
-        
         with hist_col:
             st.subheader("Historial de escucha")
-            st.caption("Las canciones mas reproducidas por este usuario")
+            st.caption("Las canciones mas reproducidas por el usuario")
             history_df = get_user_history(df, user_id_input)
             history_df = history_df.rename(columns={'title': 'Canción', 'artist_name': 'Artista', 'play_count': 'Reproducciones'})
             # Actualizado el argumento deprecado a width='stretch'
@@ -138,9 +131,7 @@ try:
                         st.image(portada_url, width=80)
                     with txt_col:
                         st.markdown(f"**{cancion}**")
-                        st.write(f"🎤 {artista} | {score}")
-                    
-                    st.divider()
+                        st.write(f"{artista} | {score}")
 
 except Exception as e:
     st.error(f'Error al cargar la aplicación: {e}')
