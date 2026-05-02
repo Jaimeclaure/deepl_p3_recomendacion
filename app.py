@@ -43,11 +43,10 @@ def get_recommendations(df, user_id, model, n=5):
 # --- INTERFAZ DE USUARIO ---
 st.title('Sistema de Recomendación de Música - Proyecto de Deep Learning')
 st.markdown(
-    "Desarrollado por Jaime Claure\n\n"
-    "Se emplea tres enfoques:\n\n"
-    "(1) Filtrado colaborativo con co-clustering para agrupar usuarios y canciones y predecir sus afinidades\n\n"
-    "(2) Usar TF‑IDF y medir la similitud del coseno para comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n"
-    "(3) GNN con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical"
+    "Para el proyecto desarrollado por Jaime Claure se emplea tres enfoques:\n\n"
+    "1.- Filtrado colaborativo que agrupa simultaneamente usuarios y canciones en clusters usando patrones de interaccion y predecir sus afinidades\n\n"
+    "2.- Usando procesamiento del lenguaje natural para medir la similitud del coseno y comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n"
+    "3.- Redes neuronales con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical"
 )
 st.divider()
 
@@ -76,8 +75,8 @@ try:
         hist_col, rec_col = st.columns(2)
         
         with hist_col:
-            st.subheader("Su Historial de Escuchas")
-            st.caption("Las canciones que este usuario más ha reproducido:")
+            st.subheader("Su historial de musica")
+            st.caption("Canciones mas reproducidas por el usuario:")
             history_df = get_user_history(df, user_id_input)
             
             # Renombrar columnas para la interfaz
@@ -85,9 +84,9 @@ try:
             st.dataframe(history_df, use_container_width=True, hide_index=True)
             
         with rec_col:
-            st.subheader("Recomendaciones para Ti")
-            st.caption("Nuestras sugerencias basadas en gustos similares:")
-            with st.spinner('Analizando millones de conexiones...'):
+            st.subheader("Recomendaciones para vos")
+            st.caption("Recomendacion basada en gustos similares:")
+            with st.spinner('Analizando millones de conexiones..'):
                 rec_df = get_recommendations(df, user_id_input, model)
                 st.dataframe(rec_df, use_container_width=True, hide_index=True)
 
