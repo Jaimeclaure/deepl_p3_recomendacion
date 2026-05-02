@@ -20,22 +20,28 @@ except Exception as e:
 
 # Función para buscar la portada del álbum en Spotify
 def get_album_cover(song_title, artist_name):
+# Imagen genérica confiable (sin restricciones de navegador) en caso de error
+    fallback_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Gnome-emblem-sound.svg/150px-Gnome-emblem-sound.svg.png"
+    
     if sp is None:
-        return "https://via.placeholder.com/150?text=No+API+Keys"
+        return fallback_url
     
     try:
         # Búsqueda combinada para mayor precisión
         query = f"track:{song_title} artist:{artist_name}"
         results = sp.search(q=query, type='track', limit=1)
         
-        if results['tracks']['items']:
-            # Extraemos la imagen de tamaño medio
-            image_url = results['tracks']['items'][0]['album']['images'][1]['url']
+        # Verificamos que haya resultados y que el álbum tenga al menos una imagen
+        if results['tracks']['items'] and len(results['tracks']['items'][0]['album']['images']) > 0:
+            # Tomamos siempre la primera imagen [0] para asegurar que exista
+            image_url = results['tracks']['items'][0]['album']['images'][0]['url']
             return image_url
         else:
-            return "https://via.placeholder.com/150?text=No+Cover"
-    except Exception:
-        return "https://via.placeholder.com/150?text=Error"
+            return fallback_url
+    except Exception as e:
+        # Imprime el error internamente en la consola por si necesitas depurar
+        print(f"Error obteniendo imagen de Spotify: {e}")
+        return fallback_url
 
 # --- FUNCIONES DE DATOS Y MODELO ---
 @st.cache_resource
