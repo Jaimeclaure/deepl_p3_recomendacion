@@ -68,11 +68,14 @@ def get_recommendations(df, user_id, model, n=5):
     return pd.DataFrame(rec_list)
 
 # GUIUX
-st.title('Sistema de Recomendaciones | Deep Learning', anchor=False)
+st.title('Sistema de Recomendacion | Deep Learning', anchor=False)
 st.caption('Proyecto desarrollado por: **Jaime Claure**')
 
 st.markdown("""
-Este proyecto de Deep Learning aborda los retos actuales en sistemas de recomendación mediante tres enfoques técnicos: un Filtrado Colaborativo que agrupa usuarios y canciones mediante Co-Clustering para predecir afinidades, un modelo de Procesamiento de Lenguaje Natural que emplea similitud del coseno para analizar el contexto semántico de los metadatos y el uso de Redes Neuronales en Grafos con Node2Vec y PyTorch para extraer vectores profundos basados en la estructura del catálogo musical.
+Se aborda los retos actuales en sistemas de recomendación con tres enfoques:
+**1. Sistema basado en Co-Clustering:** un Filtrado Colaborativo que agrupa usuarios y canciones para predecir afinidades.\n\n
+**2. Sistema basado en Contenido:** un modelo de Procesamiento de Lenguaje Natural que emplea similitud del coseno para analizar el contexto semántico de los metadatos.\n\n
+**3. Sistema de Redes Neuronales en Grafos:** usando Node2Vec y PyTorch para extraer vectores profundos basados en la estructura del catálogo musical.
 """)
 
 with st.expander("Observaciones y conclusiones.."):
