@@ -72,7 +72,7 @@ st.title('Sistema de Recomendacion | Deep Learning', anchor=False)
 st.caption('Proyecto desarrollado por: **Jaime Claure**')
 
 st.markdown("""
-Se aborda los retos actuales en sistemas de recomendación con tres enfoques:
+Se aborda los retos actuales en sistemas de recomendaciones con tres enfoques:\n\n
 **1. Sistema basado en Co-Clustering:** un Filtrado Colaborativo que agrupa usuarios y canciones para predecir afinidades.\n\n
 **2. Sistema basado en Contenido:** un modelo de Procesamiento de Lenguaje Natural que emplea similitud del coseno para analizar el contexto semántico de los metadatos.\n\n
 **3. Sistema de Redes Neuronales en Grafos:** usando Node2Vec y PyTorch para extraer vectores profundos basados en la estructura del catálogo musical.
