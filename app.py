@@ -6,16 +6,16 @@ import re
 import requests
 import urllib.parse
 
-# 1. Configuración de la página
+# 1. Config
 st.set_page_config(page_title='Proyecto de Deep Learning / Jaime Claure', page_icon='🎵', layout='wide')
 
-# --- CONFIGURACIÓN DE ITUNES API (Alternativa libre a Spotify) ---
+# iTunes API
 def get_album_cover(song_title, artist_name):
     # Imagen genérica confiable en caso de error
     fallback_url = "https://dummyimage.com/150x150/282828/1db954.png&text=No+Cover"
     
     try:
-        # Limpieza de datos (Borramos paréntesis y corchetes)
+        # Limpieza de datos 
         clean_title = re.sub(r'\(.*?\)|\[.*?\]', '', song_title).strip()
         clean_artist = re.sub(r'\(.*?\)|\[.*?\]', '', artist_name).strip()
         
@@ -27,9 +27,9 @@ def get_album_cover(song_title, artist_name):
         response = requests.get(url, timeout=5)
         data = response.json()
         
-        # Si iTunes encuentra la canción, extraemos la URL de la portada
+        # iTunes encuentra la canción, extra el cover
         if data['resultCount'] > 0:
-            # Obtenemos la imagen (por defecto 100x100px)
+            # cover al 100x100
             return data['results'][0]['artworkUrl100']
         else:
             return fallback_url
@@ -37,7 +37,7 @@ def get_album_cover(song_title, artist_name):
         print(f"Error en iTunes API: {e}")
         return fallback_url
 
-# --- FUNCIONES DE DATOS Y MODELO ---
+# el modelo
 @st.cache_resource
 def load_data():
     df = pd.read_csv('songs_data_app.csv')
@@ -67,8 +67,8 @@ def get_recommendations(df, user_id, model, n=5):
     
     return pd.DataFrame(rec_list)
 
-# --- INTERFAZ DE USUARIO ---
-st.title('Sistema de Recomendaciones | Deep Learning')
+# GUIUX
+st.title('Sistema de Recomendaciones | Deep Learning', anchor=False)
 st.caption('Proyecto desarrollado por: **Jaime Claure**')
 
 st.markdown("""
@@ -92,40 +92,40 @@ try:
     valid_users = sorted(df['user_id'].unique())    
     col1, col2 = st.columns([1, 2])
     with col1:
-        st.subheader("Selecciona un usuario")
+        st.subheader("Selecciona un usuario", anchor=False)
         user_id_input = st.selectbox('Usuarios válidos en la base de datos:', valid_users)
         
         if st.button('Elige usuario al azar'):
             user_id_input = random.choice(valid_users)
             st.rerun()
 
-    # Actualizado el argumento deprecado a width='stretch'
+    
     if st.button('Analizar perfil y recomendar', width='stretch'):
         hist_col, rec_col = st.columns(2)
         with hist_col:
-            st.subheader("Historial de escucha")
+            st.subheader("Historial de escucha", anchor=False)
             st.caption("Las canciones mas reproducidas por el usuario")
             history_df = get_user_history(df, user_id_input)
             history_df = history_df.rename(columns={'title': 'Canción', 'artist_name': 'Artista', 'play_count': 'Reproducciones'})
-            # Actualizado el argumento deprecado a width='stretch'
+            
             st.dataframe(history_df, width='stretch', hide_index=True)
             
         with rec_col:
-            st.subheader("Recomendaciones para vos")
+            st.subheader("Recomendaciones para vos", anchor=False)
             st.caption("Recomendaciones basadas en gustos similares:")
             with st.spinner('Haciendo la magia..'):
                 rec_df = get_recommendations(df, user_id_input, model)
                 
-                # Desplegar tarjetas visuales con carátulas de Apple Music
+                # covers de Apple Music
                 for index, row in rec_df.iterrows():
                     cancion = row['Canción']
                     artista = row['Artista']
                     score = row['Match Score']
                     
-                    # Llamada a iTunes API
+                    # iTunes API
                     portada_url = get_album_cover(cancion, artista)
                     
-                    # Maquetación de la tarjeta
+                    # Maquetacion de la tarjeta
                     img_col, txt_col = st.columns([1, 4])
                     with img_col:
                         st.image(portada_url, width=80)
