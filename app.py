@@ -72,19 +72,23 @@ st.title('Sistema de Recomendaciones | Deep Learning', anchor=False)
 st.caption('Proyecto desarrollado por: **Jaime Claure**')
 
 st.markdown("""
-Este proyecto de Deep Learning realiza un analiza bajo tres enfoques:
-* **Filtrado Colaborativo:** Agrupa a usuarios y canciones para encontrar patrones y predecir afinidades.
-* **Procesamiento de Lenguaje Natural:** Analiza el contexto semantico basadas en contenido.
-* **Redes Neuronales en Grafos:** Mapea conexiones de escucha para extraer embeddings de cada cancion.
+Este proyecto de Deep Learning aborda los retos actuales en sistemas de recomendación mediante tres enfoques técnicos: un Filtrado Colaborativo que agrupa usuarios y canciones mediante Co-Clustering para predecir afinidades, un modelo de Procesamiento de Lenguaje Natural que emplea similitud del coseno para analizar el contexto semántico de los metadatos y el uso de Redes Neuronales en Grafos con Node2Vec y PyTorch para extraer vectores profundos basados en la estructura del catálogo musical.
 """)
 
-with st.expander("Como funciona la arquitectura detras del proyecto?"):
+with st.expander("Observaciones y conclusiones.."):
     st.markdown("""      
-    Proyecto de Deep Learning diseñado para abordar los desafíos de los sistemas de recomendacion:
-    
-    1. Filtrado colaborativo que agrupa simultaneamente usuarios y canciones en clusters usando patrones de interaccion y predecir sus afinidades\n\n
-    2. Utilizando procesamiento del lenguaje natural para medir la similitud del coseno y comparar el contexto semántico de las canciones, así recomendar a usuarios nuevos que no tienen historial suficiente de interacciones\n\n
-    3. Redes neuronales con grafos de co-ocurrencia, donde Node2Vec explora el grafo de forma guiada para capturar similitudes estructurales y en PyTorch se entrenan embeddings más profundos del catálogo musical
+### 1. Análisis y comparativa de modelos
+Evalué las arquitecturas para definir su impacto en la experiencia de escucha, donde el Filtrado Colaborativo demostró ser el más preciso para usuarios frecuentes con un RMSE de $1.0487$, aunque presenta limitaciones ante la falta de historial, por su parte, el modelo basado en contenido resolvió mejor el "arranque en frío" mediante metadatos, mientras que las GNN destacaron por capturar conexiones de co-ocurrencia complejas, a pesar de requerir un mayor coste de procesamiento se recurrio a Colab.
+
+\n \n
+
+### 2. Propuesta de arquitectura final
+Decidí implementar un sistema híbrido que prioriza el Co-Clustering como motor de personalización y utiliza el análisis de contenido como mecanismo de respaldo para nuevos usuarios asi poder garantizar un descubrimiento musical verdadero, tambien integré una corrección de popularidad que mitiga el sesgo hacia los éxitos comerciales, logrando un equilibrio entre precisión y variedad en las recomendaciones.
+
+\n \n
+
+### 3. Margen de mejora y trabajo para futuros proyectos
+Para escalar el DeepLearning, podria integrar factorización matricial para refinar las predicciones y sustituir el análisis semántico actual por embeddings de lenguaje profundo como BERT, otro aspecto a entrenar/ajustar el modelo, también se podria mejorar el modelo cambiando el recorrido del grafo guiado de p(afecta la tendencia de revisitar el nodo anterior) y q (afecta la tendencia de explroar alrededor), permitiendo que la red identifique relaciones estructurales de 2do orden aun mas sutiles en el catalogo musical.
     """)
 
 try:
